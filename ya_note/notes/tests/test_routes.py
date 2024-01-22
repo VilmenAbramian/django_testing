@@ -9,6 +9,7 @@ from notes.models import Note
 # Получаем модель пользователя.
 User = get_user_model()
 
+
 class TestRoutes(TestCase):
 
     @classmethod
@@ -18,9 +19,9 @@ class TestRoutes(TestCase):
         cls.reader = User.objects.create(username='Другой пользователь')
         cls.note = Note.objects.create(
             title='Заголовок',
-            slug = 'test_note',
+            slug='test_note',
             text='Текст',
-            author = cls.author,
+            author=cls.author,
         )
 
     def test_pages_availability_for_anon(self):
@@ -57,4 +58,3 @@ class TestRoutes(TestCase):
                 redirect_url = f'{login_url}?next={url}'
                 response = self.client.get(url)
                 self.assertRedirects(response, redirect_url)
-

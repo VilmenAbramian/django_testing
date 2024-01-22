@@ -6,6 +6,7 @@ from pytest_django.asserts import assertRedirects
 
 import pytest
 
+
 @pytest.mark.parametrize(
     'name',
     ('news:home', 'users:login', 'users:logout', 'users:signup', 'news:detail')
@@ -33,4 +34,4 @@ def test_redirect_for_anonymous_client(client, name, args):
     url = reverse(name, args=args)
     expected_url = f'{login_url}?next={url}'
     response = client.get(url)
-    assertRedirects(response, expected_url) 
+    assertRedirects(response, expected_url)

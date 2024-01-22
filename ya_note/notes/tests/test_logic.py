@@ -9,6 +9,7 @@ from notes.models import Note
 
 User = get_user_model()
 
+
 class TestPostCreation(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -16,9 +17,13 @@ class TestPostCreation(TestCase):
         cls.user = User.objects.create(username='Просто пользователь')
         cls.auth_client = Client()
         cls.auth_client.force_login(cls.user)
-        cls.form_data = {'title': 'Заголовок заметки', 'text': 'Текст заметки', 'slug':'test228'}
+        cls.form_data = {
+            'title': 'Заголовок заметки',
+            'text': 'Текст заметки',
+            'slug': 'test228'
+        }
 
-    def test_anonymous_user_cant_create_note(self):     
+    def test_anonymous_user_cant_create_note(self):
         self.client.post(self.url, data=self.form_data)
         notes_count = Note.objects.count()
         self.assertEqual(notes_count, 0)
@@ -34,7 +39,6 @@ class TestPostCreation(TestCase):
         self.assertEqual(note.author, self.user)
 
     def test_uniq_slug(self):
-        response_1 = self.auth_client.post(self.url, data=self.form_data)
         response_2 = self.auth_client.post(self.url, data=self.form_data)
         self.assertFormError(
             response_2,
@@ -42,6 +46,7 @@ class TestPostCreation(TestCase):
             field='slug',
             errors=self.form_data['slug'] + WARNING
         )
+
 
 class TestNoteEditDelete(TestCase):
     NOTE_TEXT = 'Текст'
@@ -53,19 +58,22 @@ class TestNoteEditDelete(TestCase):
         cls.reader = User.objects.create(username='Другой пользователь')
         cls.note = Note.objects.create(
             title='Заголовок',
-            slug = 'test_note',
+            slug='test_note',
             text=cls.NOTE_TEXT,
-            author = cls.author,
+            author=cls.author,
         )
-        note_url = reverse('notes:detail', args=(cls.note.slug,))
         cls.author_client = Client()
         cls.author_client.force_login(cls.author)
         cls.reader_client = Client()
-        cls.reader_client.force_login(cls.reader)        
-        cls.edit_url = reverse('notes:edit', args=(cls.note.slug,)) 
-        cls.delete_url = reverse('notes:delete', args=(cls.note.slug,))         
+        cls.reader_client.force_login(cls.reader)
+        cls.edit_url = reverse('notes:edit', args=(cls.note.slug,))
+        cls.delete_url = reverse('notes:delete', args=(cls.note.slug,))
         # Формируем данные для POST-запроса по обновлению комментария.
-        cls.form_data = {'title': 'Новый заголовок', 'text': cls.NEW_NOTE_TEXT, 'slug':'refresh'}
+        cls.form_data = {
+            'title': 'Новый заголовок',
+            'text': cls.NEW_NOTE_TEXT,
+            'slug': 'refresh'
+        }
 
     def test_author_can_delete_note(self):
         response = self.author_client.delete(self.delete_url)
@@ -89,4 +97,4 @@ class TestNoteEditDelete(TestCase):
         response = self.reader_client.post(self.edit_url, data=self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.note.refresh_from_db()
-        self.assertEqual(self.note.text, self.NOTE_TEXT) 
+        self.assertEqual(self.note.text, self.NOTE_TEXT)
