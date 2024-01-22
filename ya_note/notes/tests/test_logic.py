@@ -39,6 +39,7 @@ class TestPostCreation(TestCase):
         self.assertEqual(note.author, self.user)
 
     def test_uniq_slug(self):
+        self.auth_client.post(self.url, data=self.form_data)
         response_2 = self.auth_client.post(self.url, data=self.form_data)
         self.assertFormError(
             response_2,
