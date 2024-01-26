@@ -1,37 +1,34 @@
-# test_routes.py
 from http import HTTPStatus
-
-from django.urls import reverse
+import pytest
 from pytest_django.asserts import assertRedirects
 
-import pytest
+from .consts import Urls, UserClient
+
+pytestmark = pytest.mark.django_db
 
 
 @pytest.mark.parametrize(
-    'name',
-    ('news:home', 'users:login', 'users:logout', 'users:signup', 'news:detail')
+    'url, param_client, status_code',
+    [
+        (Urls.NEWS_HOME, UserClient.ANONIMUS, HTTPStatus.OK),
+        (Urls.NEWS_DETAIL, UserClient.ANONIMUS, HTTPStatus.OK),
+        (Urls.LOGIN, UserClient.ANONIMUS, HTTPStatus.OK),
+        (Urls.LOGOUT, UserClient.ANONIMUS, HTTPStatus.OK),
+        (Urls.SIGNUP, UserClient.ANONIMUS, HTTPStatus.OK),
+        (Urls.NEWS_EDIT, UserClient.AUTHOR, HTTPStatus.OK),
+        (Urls.NEWS_DELETE, UserClient.AUTHOR, HTTPStatus.OK),
+        (Urls.NEWS_EDIT, UserClient.READER, HTTPStatus.NOT_FOUND),
+        (Urls.NEWS_DELETE, UserClient.READER, HTTPStatus.NOT_FOUND),
+    ]
 )
-@pytest.mark.django_db
-def test_pages_availability_for_anonymous_user(client, name, news_item):
-    if name == 'news:detail':
-        url = reverse(name, args=(news_item.id,))
-    else:
-        url = reverse(name)
-    response = client.get(url)
-    assert response.status_code == HTTPStatus.OK
+def test_pages_availability(url, param_client, status_code):
+    assert param_client.get(url).status_code == status_code
 
 
 @pytest.mark.parametrize(
-    'name, args',
-    (
-        ('news:edit', pytest.lazy_fixture('id_for_args')),
-        ('news:delete', pytest.lazy_fixture('id_for_args')),
-    ),
+    'url, expected_url',
+    [(Urls.NEWS_EDIT, Urls.REDIRECT_EDIT),
+     (Urls.NEWS_DELETE, Urls.REDIRECT_DELETE)]
 )
-@pytest.mark.django_db
-def test_redirect_for_anonymous_client(client, name, args):
-    login_url = reverse('users:login')
-    url = reverse(name, args=args)
-    expected_url = f'{login_url}?next={url}'
-    response = client.get(url)
-    assertRedirects(response, expected_url)
+def test_redirect(client, url, expected_url):
+    assertRedirects(client.get(url), expected_url)

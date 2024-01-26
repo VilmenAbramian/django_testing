@@ -1,47 +1,54 @@
+from django.conf import settings
 import pytest
 
-from django.conf import settings
-from django.urls import reverse
+from .consts import Urls
+from news.forms import CommentForm
+
+pytestmark = pytest.mark.django_db
 
 
-HOME_URL = reverse('news:home')
+@pytest.mark.parametrize(
+    'url', [Urls.NEWS_HOME]
+)
+def test_news_count(url, client, news_set):
+    response = client.get(url)
+    news_list = response.context['object_list']
+    assert len(news_list) == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
-@pytest.mark.django_db
-def test_news_count(client, news_set):
-    response = client.get(HOME_URL)
-    object_list = response.context['object_list']
-    news_count = len(object_list)
-    assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
+@pytest.mark.parametrize(
+    'url', [Urls.NEWS_HOME]
+)
+def test_news_order(url, client, news_set):
+    response = client.get(url)
+    news_list = response.context['object_list']
+    all_dates = [news.date for news in news_list]
+    assert all_dates == sorted(all_dates, reverse=True)
 
 
-@pytest.mark.django_db
-def test_news_order(client, news_set):
-    response = client.get(HOME_URL)
-    object_list = response.context['object_list']
-    all_dates = [news.date for news in object_list]
-    sorted_dates = sorted(all_dates, reverse=True)
-    assert all_dates == sorted_dates
-
-
-@pytest.mark.django_db
-def test_comment_order(client, comments):
-    news_item_url = reverse('news:detail', args=(comments.news.id,))
-    response = client.get(news_item_url)
+@pytest.mark.parametrize(
+    'url', [Urls.NEWS_DETAIL]
+)
+def test_comment_order(url, client, comments):
+    response = client.get(url)
     assert 'news' in response.context
     news = response.context['news']
     all_comments = news.comment_set.all()
-    all_comments[0].created < all_comments[1].created
+    all_dates = [comment.created for comment in all_comments]
+    assert all_dates == sorted(all_dates)
 
 
-@pytest.mark.django_db
-def test_anonymous_client_has_no_form(client, news_item):
-    detail_url = reverse('news:detail', args=(news_item.id,))
-    response = client.get(detail_url)
-    assert 'form' not in response.context
+@pytest.mark.parametrize(
+    'url', [Urls.NEWS_DETAIL]
+)
+def test_anonymous_client_has_no_form(url, client, news_item):
+    assert 'form' not in client.get(url).context
 
 
-def test_authorized_client_has_form(author_client, news_item):
-    detail_url = reverse('news:detail', args=(news_item.id,))
-    response = author_client.get(detail_url)
+@pytest.mark.parametrize(
+    'url', [Urls.NEWS_DETAIL]
+)
+def test_authorized_client_has_form(url, author_client, news_item):
+    response = author_client.get(url)
     assert 'form' in response.context
+    assert isinstance(response.context['form'], CommentForm)
