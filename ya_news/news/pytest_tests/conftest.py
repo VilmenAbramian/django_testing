@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
+
+import pytest
 from django.conf import settings
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
-import pytest
 
-from news.models import News, Comment
+from news.models import Comment, News
 
 
 @pytest.fixture
@@ -69,7 +70,6 @@ def comments(author, news_item):
         )
         comments_set.created = now + timedelta(days=index)
         comments_set.save()
-    return comments_set
 
 
 @pytest.fixture
@@ -120,8 +120,3 @@ def to_news_delete_url_after_login(login_url, news_delete_url):
 @pytest.fixture
 def to_news_detail_url_after_login(login_url, news_detail_url):
     return f'{login_url}?next={news_detail_url}'
-
-
-@pytest.fixture
-def form_data():
-    return None

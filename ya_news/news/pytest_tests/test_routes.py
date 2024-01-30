@@ -1,4 +1,5 @@
 from http import HTTPStatus
+
 import pytest
 from pytest_django.asserts import assertRedirects
 
@@ -8,8 +9,7 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.mark.parametrize(
-    'url, param_client, status_code',
-    [
+    'url, param_client, status_code', [
         (Urls.NEWS_HOME, UserClient.ANONIMUS, HTTPStatus.OK),
         (Urls.NEWS_DETAIL, UserClient.ANONIMUS, HTTPStatus.OK),
         (Urls.LOGIN, UserClient.ANONIMUS, HTTPStatus.OK),
@@ -19,8 +19,7 @@ pytestmark = pytest.mark.django_db
         (Urls.NEWS_DELETE, UserClient.AUTHOR, HTTPStatus.OK),
         (Urls.NEWS_EDIT, UserClient.READER, HTTPStatus.NOT_FOUND),
         (Urls.NEWS_DELETE, UserClient.READER, HTTPStatus.NOT_FOUND),
-    ]
-)
+    ])
 def test_pages_availability(url, param_client, status_code):
     assert param_client.get(url).status_code == status_code
 
