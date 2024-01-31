@@ -7,8 +7,8 @@ class TestContent(TestBaseParameters):
         notes = self.author_client.get(
             Urls.NOTES_LIST
         ).context['object_list']
-        note = notes[0]
         self.assertEqual(len(notes), 1)
+        note = notes[0]
         self.assertEqual(note.title, self.note.title)
         self.assertEqual(note.text, self.note.text)
         self.assertEqual(note.slug, self.note.slug)
