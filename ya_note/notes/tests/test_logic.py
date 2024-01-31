@@ -87,7 +87,7 @@ class TestPostCreation(TestBaseParameters):
                                            data=self.note_form_data)
         self.assertRedirects(response, Urls.SUCCESS_ADDING_URL)
         self.assertEqual(Note.objects.count(), 1)
-        note = Note.objects.all()[0]
+        note = Note.objects.get(slug=self.note_form_data['slug'])
         self.assertEqual(note.title, self.note_form_data['title'])
         self.assertEqual(note.text, self.note_form_data['text'])
         self.assertEqual(note.slug, self.note_form_data['slug'])
@@ -100,9 +100,9 @@ class TestPostCreation(TestBaseParameters):
             data={'title': self.note_form_data['title'],
                   'text': self.note_form_data['text']}
         )
-        new_note = Note.objects.all()[0]
         self.assertEqual(Note.objects.count(), 1)
+        new_note = Note.objects.all()[0]
         self.assertEqual(new_note.title, self.note_form_data['title'])
         self.assertEqual(new_note.text, self.note_form_data['text'])
-        self.assertEqual(new_note.slug, slugify(new_note.title)[:100])
+        self.assertEqual(new_note.slug, slugify(new_note.title))
         self.assertEqual(new_note.author, self.author)
