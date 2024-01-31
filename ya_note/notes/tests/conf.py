@@ -49,7 +49,6 @@ class TestBaseParameters(TestCase):
             'title': NEW_PREFIX + cls.note_form_data['title'],
             'text': NEW_PREFIX + cls.note_form_data['text'],
             'slug': NEW_PREFIX + cls.note_form_data['slug'],
-            'author': cls.author
         }
         cls.note = Note.objects.create(
             title=cls.note_form_data['title'],

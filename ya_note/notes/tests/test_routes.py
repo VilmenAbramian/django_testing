@@ -12,7 +12,7 @@ class TestRoutes(TestBaseParameters):
         cls.notes_before = set(Note.objects.all())
 
     def test_urls_status_code(self):
-        testing_pages = (
+        testing_cases = (
             (Urls.HOME, self.anonymous_client, HTTPStatus.OK),
             (Urls.USER_LOGIN, self.anonymous_client, HTTPStatus.OK),
             (Urls.USER_LOGOUT, self.anonymous_client, HTTPStatus.OK),
@@ -27,7 +27,7 @@ class TestRoutes(TestBaseParameters):
             (Urls.NOTE_DETAIL, self.reader_client, HTTPStatus.NOT_FOUND),
             (Urls.NOTE_DELETE, self.reader_client, HTTPStatus.NOT_FOUND),
         )
-        for address, client, status in testing_pages:
+        for address, client, status in testing_cases:
             with self.subTest(address=address, client=client, status=status):
                 self.assertEqual(client.get(address).status_code, status)
 
