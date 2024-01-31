@@ -4,14 +4,15 @@ from notes.tests.conf import TestBaseParameters, Urls
 
 class TestContent(TestBaseParameters):
     def test_one_note_in_context(self):
-        notes_list = self.author_client.get(
+        notes = self.author_client.get(
             Urls.NOTES_LIST
         ).context['object_list']
-        self.assertEqual(len(notes_list), 1)
-        self.assertEqual(notes_list[0].title, self.note.title)
-        self.assertEqual(notes_list[0].text, self.note.text)
-        self.assertEqual(notes_list[0].slug, self.note.slug)
-        self.assertEqual(notes_list[0].author, self.note.author)
+        note = notes[0]
+        self.assertEqual(len(notes), 1)
+        self.assertEqual(note.title, self.note.title)
+        self.assertEqual(note.text, self.note.text)
+        self.assertEqual(note.slug, self.note.slug)
+        self.assertEqual(note.author, self.note.author)
 
     def test_author_has_only_his_notes(self):
         self.assertNotIn(
