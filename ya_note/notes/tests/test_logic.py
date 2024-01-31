@@ -1,3 +1,4 @@
+from pytils.translit import slugify
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
@@ -63,7 +64,7 @@ class TestPostCreation(TestBaseParameters):
         )
         self.assertEqual(
             refresh_note.author,
-            self.author
+            self.note.author
         )
 
     def test_user_cant_edit_note_of_another_user(self):
@@ -86,7 +87,7 @@ class TestPostCreation(TestBaseParameters):
                                            data=self.note_form_data)
         self.assertRedirects(response, Urls.SUCCESS_ADDING_URL)
         self.assertEqual(Note.objects.count(), 1)
-        note = set(Note.objects.all()).pop()
+        note = Note.objects.all()[0]
         self.assertEqual(note.title, self.note_form_data['title'])
         self.assertEqual(note.text, self.note_form_data['text'])
         self.assertEqual(note.slug, self.note_form_data['slug'])
@@ -103,5 +104,5 @@ class TestPostCreation(TestBaseParameters):
         self.assertEqual(Note.objects.count(), 1)
         self.assertEqual(new_note.title, self.note_form_data['title'])
         self.assertEqual(new_note.text, self.note_form_data['text'])
-        self.assertEqual(new_note.slug, 'test-note-title')
+        self.assertEqual(new_note.slug, slugify(new_note.title)[:100])
         self.assertEqual(new_note.author, self.author)
